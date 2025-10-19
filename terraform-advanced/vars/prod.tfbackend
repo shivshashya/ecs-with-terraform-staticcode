@@ -1,0 +1,4 @@
+    bucket  = "augustbootcamp-terraform-state"
+    key     = "global/dev/terraform.tfstate"
+    region  = "ap-south-1"
+    encrypt = true

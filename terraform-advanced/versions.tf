@@ -1,9 +1,9 @@
 terraform {
-  required_version = "1.13.3"
+  required_version = "1.5.7"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.0.0" # >= 6.0.0 and < 7.0.0
+      version = ">= 6.0.0" # >= 6.0.0 and < 7.0.0
     }
 
     random = {
@@ -28,10 +28,6 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = "augustbootcamp-terraform-state"
-    key     = "global/s3/terraform.tfstate"
-    region  = "ap-south-1"
-    encrypt = true
   }
 }
 

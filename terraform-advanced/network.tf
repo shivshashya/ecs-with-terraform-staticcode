@@ -2,34 +2,36 @@
 
 # VPC
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "august-bootcamp-vpc-terraform"
+    # variable interpolation 
+    Name     = "${var.environment}-vpc" #dev-vpc, prod-vpc
+    Projects = var.project
   }
 }
 
 # Private Subnet - 1
 resource "aws_subnet" "private_1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "ap-south-1a"
+  cidr_block        = var.subnet_cidrs[0]
+  availability_zone = "${data.aws_region.current.name}a"
 
 
   tags = {
-    Name = "private-subnet-1"
+    Name = "${var.environment}-private-sub-1"
   }
 }
 
 # Private Subnet - 2
 resource "aws_subnet" "private_2" { #The second name in the resource line must be unique
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "ap-south-1b"
+  cidr_block        = var.subnet_cidrs[1]
+  availability_zone = "${data.aws_region.current.name}b"
 
 
   tags = {
-    Name = "private-subnet-2"
+    Name = "${var.environment}-private-sub-2"
   }
 }
 
@@ -38,7 +40,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "private-route-table"
+    Name = "${var.environment}-private-rt"
   }
 }
 
@@ -64,25 +66,25 @@ resource "aws_route" "private_nat_route" {
 # Public Subnet - 1
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.3.0/24"
+  cidr_block              = var.subnet_cidrs[2]
   availability_zone       = "ap-south-1a"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "public-subnet-1"
+    Name = "${var.environment}-public-sub-1"
   }
 }
 
 # Public Subnet - 2
 resource "aws_subnet" "public_2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.4.0/24"
-  availability_zone = "ap-south-1b"
+  cidr_block        = var.subnet_cidrs[3]
+  availability_zone = "${data.aws_region.current.name}b"
 
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "public-subnet-2"
+    Name = "${var.environment}-public-sub-2"
   }
 }
 
@@ -91,7 +93,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "public-route-table"
+    Name = "${var.environment}-public-rt"
   }
 
   route {
@@ -116,18 +118,18 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main-internet-gateway"
+    Name = "${var.environment}-IGW"
   }
 }
 
 #NAT Gateway
 resource "aws_nat_gateway" "nat_gateway" {
-  allocation_id = data.aws_eip.by_allocation_id.id
+  allocation_id = aws_eip.nat_eip.id
   #allocation_id = aws_eip.nat_eip.id
   subnet_id = aws_subnet.public_1.id
 
   tags = {
-    Name = "gw NAT"
+    Name = "${var.environment}-nat"
   }
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -140,7 +142,7 @@ resource "aws_nat_gateway" "nat_gateway" {
 # Elastic IP for NAT Gateway
 resource "aws_eip" "nat_eip" {
   tags = {
-    Name = "nat-gateway-eip"
+    Name = "${var.environment}-nat-eip"
   }
 }
 
@@ -163,22 +165,22 @@ resource "aws_eip" "nat_eip" {
 #2-Subnet groups for RDS
 resource "aws_subnet" "rds_1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.5.0/24"
-  availability_zone = "ap-south-1a"
+  cidr_block        = var.subnet_cidrs[4]
+  availability_zone = "${data.aws_region.current.name}a"
 
 
   tags = {
-    Name = "rds-subnet-1"
+    Name = "${var.environment}-rds-sub-1"
   }
 }
 
 resource "aws_subnet" "rds_2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.6.0/24"
-  availability_zone = "ap-south-1b"
+  cidr_block        = var.subnet_cidrs[5]
+  availability_zone = "${data.aws_region.current.name}b"
 
 
   tags = {
-    Name = "rds-subnet-2"
+    Name = "${var.environment}-rds-sub-2"
   }
 }

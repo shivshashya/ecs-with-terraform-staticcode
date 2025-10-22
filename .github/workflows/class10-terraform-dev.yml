@@ -30,7 +30,7 @@ jobs:
         run: |
           cd ${{ env.infra_path }}
           terraform fmt -check
-
+#If the terraform files are not formated properly it will fail the check 
 
 # ctrl(cmd)+[ -> towrads left 
 # ctrl(cmd)+] -> towrads right 
